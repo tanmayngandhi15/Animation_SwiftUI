@@ -14,10 +14,11 @@ class AnimationManager: ObservableObject {
     @Published var yOffset: CGFloat = 0
     @Published var animationStep: Int = 0
     @Published var imageId = 0
+    var maxX = 0.0
+    var maxY = 0.0
     
     let imageArray = ["diwali_fireworks", "fan_blade", "colourfull_fan"]
-    
-    
+
     private var timer_1: Timer?
     private var timer_2: Timer?
     
@@ -35,8 +36,6 @@ class AnimationManager: ObservableObject {
         
         timer_2 = Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { [weak self] _ in
             guard let self = self else { return }
-            let maxX = UIScreen.main.bounds.maxX - 200
-            let maxY = UIScreen.main.bounds.maxY - 230
             
             withAnimation(.easeInOut(duration: 4)) {
                 switch self.animationStep {
@@ -44,27 +43,28 @@ class AnimationManager: ObservableObject {
                     self.xOffset = maxX / 2
                     self.yOffset = 0
                 case 1:
-                    self.xOffset = maxX
-                    self.yOffset = maxY / 2
+                    self.xOffset = self.maxX
+                    self.yOffset = self.maxY / 2
                 case 2:
-                    self.xOffset = maxX / 2
-                    self.yOffset = maxY
+                    self.xOffset = self.maxX / 2
+                    self.yOffset = self.maxY
                 case 3:
                     self.xOffset = 0
-                    self.yOffset = maxY / 2
+                    self.yOffset = self.maxY / 2
                 case 4:
-                    self.xOffset = maxX / 2
+                    self.xOffset = self.maxX / 2
                     self.yOffset = 0
                 case 5:
-                    self.xOffset = maxX / 2
-                    self.yOffset = maxY / 2
+                    self.xOffset = self.maxX / 2
+                    self.yOffset = self.maxY / 2
                 default:
                     self.xOffset = 0
                     self.yOffset = 0
                 }
-                
+                // Sync case 1...6
                 self.animationStep = self.animationStep>5 ? 0 : self.animationStep+1
-                
+
+                // Random 1 to 6
                 //  animationStep = Int.random(in: 0...6)
             }
         }
@@ -98,6 +98,10 @@ struct ContentView: View {
                             .animation(.easeInOut(duration: 2), value: animationManager.rotationAngle)
                             .animation(.easeInOut(duration: 4), value: animationManager.xOffset)
                     }
+                    .onAppear(perform: {
+                        animationManager.maxX = geometry.frame(in: .local).maxX - 200
+                        animationManager.maxY = geometry.frame(in: .local).maxY - 200
+                    })
                 }
             }
             
